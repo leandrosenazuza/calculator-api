@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: calculator-postgres
+    environment:
+      POSTGRES_DB: calculator_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - calculator-network
+
+  # API (opcional - pode rodar localmente também)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: calculator-api
+    ports:
+      - "3001:3001"
+    environment:
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/calculator_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - calculator-network
+    profiles:
+      - fullstack  # Use: docker-compose --profile fullstack up
+
+volumes:
+  postgres_data:
+
+networks:
+  calculator-network:
+    driver: bridge
+

@@ -6,56 +6,77 @@ API backend para a aplicação de calculadora financeira, desenvolvida com Sprin
 
 - **Spring Boot 3.2.0**
 - **Kotlin 1.9.20**
-- **PostgreSQL**
+- **PostgreSQL** (via Docker)
 - **Spring Data JPA**
 - **Gradle**
 
 ## Pré-requisitos
 
 - Java 17 ou superior
-- PostgreSQL instalado e rodando
+- Docker e Docker Compose (para PostgreSQL)
 - Gradle (ou use o wrapper incluído)
 
 ## Configuração do Banco de Dados
 
-1. Crie o banco de dados PostgreSQL:
-```sql
-CREATE DATABASE calculator_db;
-```
+O PostgreSQL é configurado automaticamente via Docker. Não é necessário instalar PostgreSQL localmente.
 
-2. Configure as credenciais no arquivo `application.yml`:
-```yaml
-spring:
-  datasource:
-    username: seu_usuario
-    password: sua_senha
-```
+### Credenciais Padrão
 
-Ou use variáveis de ambiente:
-```bash
-export DB_USERNAME=postgres
-export DB_PASSWORD=postgres
-```
+- **Usuário:** `postgres`
+- **Senha:** `postgres`
+- **Banco:** `calculator_db`
+- **Porta:** `5432`
 
 ## Como Rodar
 
-### Desenvolvimento
+### Opção 1: Script de Start Completo (Recomendado)
+
+Execute a partir da **raiz do projeto** (onde estão `calculator-api` e `calculator-app`):
 
 ```bash
+./calculator-api/start.sh
+```
+
+Este script:
+- ✅ Inicia PostgreSQL via Docker (se não estiver rodando)
+- ✅ Inicia a API Spring Boot
+- ✅ Inicia o App React/Vite
+
+Pressione `Ctrl+C` para parar API e App (PostgreSQL continua rodando).
+
+### Opção 2: Apenas a API
+
+```bash
+# Iniciar PostgreSQL
+cd calculator-api
+docker-compose up -d postgres
+
+# Rodar a API
 ./gradlew bootRun
 ```
 
-### Build
+### Opção 3: Tudo via Docker
 
 ```bash
-./gradlew build
+cd calculator-api
+docker-compose --profile fullstack up -d
 ```
 
-### Executar JAR
+Isso inicia PostgreSQL + API via Docker.
+
+## Comandos Docker
 
 ```bash
-./gradlew build
-java -jar build/libs/calculator-api-1.0.0.jar
+# Ver logs do PostgreSQL
+docker-compose logs -f postgres
+
+# Parar PostgreSQL
+./stop.sh
+# ou
+docker-compose down
+
+# Parar e remover volumes (apaga dados)
+docker-compose down -v
 ```
 
 ## Endpoints da API
@@ -72,6 +93,10 @@ java -jar build/libs/calculator-api-1.0.0.jar
 ### Tabelas
 - `GET /api/tabelas` - Lista arquivos JSON de tabelas
 - `POST /api/upload` - Upload de arquivo JSON
+
+## Porta Padrão
+
+A API roda na porta **3001** por padrão.
 
 ## Estrutura do Projeto
 
@@ -90,13 +115,13 @@ calculator-api/
 │   │   └── resources/
 │   │       └── application.yml  # Configurações da aplicação
 │   └── test/                    # Testes
+├── docker-compose.yml           # Configuração Docker (PostgreSQL)
+├── Dockerfile                   # Dockerfile para deploy da API
+├── start.sh                     # Script para iniciar tudo
+├── stop.sh                      # Script para parar Docker
 ├── build.gradle.kts             # Dependências Gradle
 └── README.md
 ```
-
-## Porta Padrão
-
-A API roda na porta **3001** por padrão.
 
 ## Migração de Dados
 
@@ -104,4 +129,18 @@ O Spring Boot criará automaticamente as tabelas no PostgreSQL na primeira execu
 
 Para migrar dados do SQLite antigo, você pode usar um script de migração ou fazer manualmente.
 
-# calculator-api
+## Deploy
+
+Para deploy em produção:
+
+1. **Build da imagem Docker:**
+   ```bash
+   docker build -t calculator-api .
+   ```
+
+2. **Ou usar docker-compose:**
+   ```bash
+   docker-compose --profile fullstack up -d
+   ```
+
+3. **Configurar variáveis de ambiente** para produção no `application.yml` ou via variáveis de ambiente do sistema.
