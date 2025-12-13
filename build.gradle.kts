@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.9.20"
     kotlin("plugin.spring") version "1.9.20"
     kotlin("plugin.jpa") version "1.9.20"
+    id("org.flywaydb.flyway") version "10.0.0"
 }
 
 group = "com.calculator"
@@ -32,6 +33,9 @@ dependencies {
     // PostgreSQL
     runtimeOnly("org.postgresql:postgresql")
     
+    // Flyway
+    implementation("org.flywaydb:flyway-core")
+    
     // CORS
     implementation("org.springframework.boot:spring-boot-starter-web")
     
@@ -52,5 +56,15 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// Flyway configuration
+flyway {
+    url = "jdbc:postgresql://localhost:5432/calculator_db"
+    user = "postgres"
+    password = "postgres"
+    locations = arrayOf("classpath:db/migration")
+    baselineOnMigrate = true
+    baselineVersion = "0"
 }
 

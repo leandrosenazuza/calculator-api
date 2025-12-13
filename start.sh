@@ -86,6 +86,8 @@ echo -e "  - API: tail -f $PROJECT_ROOT/api.log"
 echo -e "  - App: tail -f $PROJECT_ROOT/app.log"
 echo -e "\n${RED}Pressione Ctrl+C para parar ambos os serviços${NC}\n"
 
-# Aguarda os processos
-wait
+# Aguarda os processos (mantém o script rodando)
+while kill -0 $API_PID 2>/dev/null || kill -0 $APP_PID 2>/dev/null; do
+    sleep 1
+done
 
