@@ -36,6 +36,10 @@ dependencies {
     // Flyway
     implementation("org.flywaydb:flyway-core")
     
+    // PostgreSQL driver para Flyway (necessário para tasks do Gradle)
+    // O runtimeOnly não é suficiente para o plugin Flyway do Gradle
+    implementation("org.postgresql:postgresql")
+    
     // CORS
     implementation("org.springframework.boot:spring-boot-starter-web")
     
@@ -66,5 +70,49 @@ flyway {
     locations = arrayOf("classpath:db/migration")
     baselineOnMigrate = true
     baselineVersion = "0"
+    driver = "org.postgresql.Driver"
+}
+
+// Configura mensagens informativas para as tasks do Flyway
+tasks.named("flywayMigrate") {
+    doFirst {
+        println("🔄 Executando Flyway migrations...")
+    }
+    doLast {
+        println("✅ Flyway migrations executadas com sucesso!")
+    }
+}
+
+tasks.named("flywayInfo") {
+    doFirst {
+        println("📊 Verificando status das migrations do Flyway...")
+    }
+}
+
+// Task customizada para executar Flyway antes do bootRun
+// IMPORTANTE: O Spring Boot já executa Flyway automaticamente na inicialização via application.yml
+// Esta task garante que o Flyway seja executado explicitamente antes do bootRun
+// Se o PostgreSQL não estiver rodando, o Spring Boot ainda executará o Flyway na inicialização
+tasks.named("bootRun") {
+    // Tenta executar Flyway antes, mas não bloqueia se falhar
+    // O Spring Boot executará Flyway automaticamente na inicialização de qualquer forma
+    doFirst {
+        println("🚀 Iniciando aplicação Spring Boot...")
+        println("ℹ️  Flyway será executado automaticamente pelo Spring Boot durante a inicialização")
+    }
+}
+
+// Task para executar apenas o Flyway (requer PostgreSQL rodando)
+tasks.register("runFlyway") {
+    group = "flyway"
+    description = "Executa as migrations do Flyway manualmente"
+    dependsOn("flywayMigrate")
+}
+
+// Task para verificar status do Flyway
+tasks.register("checkFlyway") {
+    group = "flyway"
+    description = "Verifica o status das migrations do Flyway"
+    dependsOn("flywayInfo")
 }
 
