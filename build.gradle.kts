@@ -64,7 +64,7 @@ tasks.withType<Test> {
 
 // Flyway configuration
 flyway {
-    url = "jdbc:postgresql://localhost:5432/calculator_db"
+    url = "jdbc:postgresql://localhost:5434/calculator_db?sslmode=disable"
     user = "postgres"
     password = "postgres"
     locations = arrayOf("classpath:db/migration")

@@ -1,13 +1,12 @@
-# Build stage
-FROM gradle:7.6-jdk17 AS build
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
-COPY build.gradle.kts settings.gradle.kts ./
+COPY gradlew build.gradle.kts settings.gradle.kts ./
 COPY gradle ./gradle
+RUN chmod +x gradlew
 COPY src ./src
-RUN gradle build -x test --no-daemon
+RUN ./gradlew bootJar -x test --no-daemon
 
-# Runtime stage
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 3001

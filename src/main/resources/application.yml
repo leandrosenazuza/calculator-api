@@ -3,7 +3,7 @@ spring:
     name: calculator-api
   
   datasource:
-    url: jdbc:postgresql://localhost:5432/calculator_db
+    url: jdbc:postgresql://localhost:5433/calculator_db
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
@@ -31,7 +31,7 @@ spring:
       max-request-size: 10MB
 
 server:
-  port: 3001
+  port: 8080
   error:
     include-message: always
     include-binding-errors: always
