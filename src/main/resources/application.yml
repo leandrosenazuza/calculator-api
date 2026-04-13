@@ -40,6 +40,13 @@ app:
   upload:
     directory: ./public/tables-taxes
 
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
 logging:
   level:
     com.calculator.api: DEBUG
